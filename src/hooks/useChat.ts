@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { ensureMabotLogin, mabot, mabotConfig } from '@/integrations/mabot';
 
 export interface Message {
   id: string;
@@ -17,6 +18,22 @@ export interface Chat {
   created_at: string;
   updated_at: string;
 }
+
+const getMabotChatIdKey = (chatId: string) => `mabot_chat_id:${chatId}`;
+const getMabotChatIdForChat = (chatId: string): string | null => {
+  try {
+    return localStorage.getItem(getMabotChatIdKey(chatId));
+  } catch {
+    return null;
+  }
+};
+const setMabotChatIdForChat = (chatId: string, mabotChatId: string) => {
+  try {
+    localStorage.setItem(getMabotChatIdKey(chatId), mabotChatId);
+  } catch {
+    // ignore storage errors
+  }
+};
 
 export const useChat = (chatId?: string) => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -139,6 +156,26 @@ export const useChat = (chatId?: string) => {
     return responses[Math.floor(Math.random() * responses.length)];
   };
 
+  const extractAssistantText = (updateOut: any): string | null => {
+    try {
+      if (!updateOut?.messages?.length) return null;
+      // Concatenate all text contents from assistant messages
+      const textParts: string[] = [];
+      for (const msg of updateOut.messages) {
+        if (!msg?.contents?.length) continue;
+        for (const c of msg.contents) {
+          if (c?.type === 'text' && typeof c?.value === 'string') {
+            textParts.push(c.value);
+          }
+        }
+      }
+      if (textParts.length === 0) return null;
+      return textParts.join('\n\n');
+    } catch {
+      return null;
+    }
+  };
+
   const sendMessage = async (messageText: string, onSuccess?: (chatId: string) => void) => {
     setIsLoading(true);
 
@@ -160,19 +197,46 @@ export const useChat = (chatId?: string) => {
         setMessages(prev => [...prev, userMessage]);
       }
 
-      // Simulate bot response
-      setTimeout(async () => {
-        const botResponse = simulateResponse(messageText);
-        const botMessage = await saveMessage(botResponse, false, chatIdToUse!);
-        
-        if (botMessage) {
-          setMessages(prev => [...prev, botMessage]);
-        }
-        
-        setIsLoading(false);
-        onSuccess?.(chatIdToUse!);
-      }, 1500);
+      // If MABOT is configured, send to MABOT; else fallback to simulation
+      const hasMabot = Boolean(mabotConfig.baseUrl);
+      if (!hasMabot) {
+        setTimeout(async () => {
+          const botResponse = simulateResponse(messageText);
+          const botMessage = await saveMessage(botResponse, false, chatIdToUse!);
+          if (botMessage) setMessages(prev => [...prev, botMessage]);
+          setIsLoading(false);
+          onSuccess?.(chatIdToUse!);
+        }, 800);
+        return;
+      }
 
+      try {
+        await ensureMabotLogin();
+        const existingMabotChatId = getMabotChatIdForChat(chatIdToUse);
+        const updateOut = await mabot.sendWebMessage({
+          text: messageText,
+          botUsername: mabotConfig.botUsername ?? null,
+          chatId: existingMabotChatId,
+          platformChatId: chatIdToUse,
+          prefixWithBotName: false,
+        });
+
+        if (updateOut?.chat_id && updateOut.chat_id !== existingMabotChatId) {
+          setMabotChatIdForChat(chatIdToUse, updateOut.chat_id);
+        }
+
+        const assistantText = extractAssistantText(updateOut) ?? '...';
+        const botMessage = await saveMessage(assistantText, false, chatIdToUse);
+        if (botMessage) setMessages(prev => [...prev, botMessage]);
+      } catch (mabotError) {
+        console.error('MABOT error:', mabotError);
+        const fallback = simulateResponse(messageText);
+        const botMessage = await saveMessage(fallback, false, chatIdToUse!);
+        if (botMessage) setMessages(prev => [...prev, botMessage]);
+      }
+
+      setIsLoading(false);
+      onSuccess?.(chatIdToUse!);
     } catch (error) {
       console.error('Error sending message:', error);
       setIsLoading(false);

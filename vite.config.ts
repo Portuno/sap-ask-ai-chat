@@ -8,6 +8,14 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
+    proxy: {
+      "/mabot": {
+        target: "https://mabot.app",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/mabot/, ""),
+        secure: true,
+      },
+    },
   },
   plugins: [
     react(),
