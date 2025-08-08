@@ -97,28 +97,17 @@ export const ChatInput = ({ onSendMessage, onSendAudio, isLoading }: ChatInputPr
 
   return (
     <form onSubmit={handleSubmit} className="flex items-center gap-2">
-      <div className="flex-1 flex items-center gap-2">
-        <Button
-          type="button"
-          onClick={isRecording ? stopRecording : startRecording}
-          disabled={isLoading}
-          aria-label={isRecording ? 'Detener grabación' : 'Grabar nota de voz'}
-          className={isRecording ? 'h-12 w-12 bg-destructive hover:bg-destructive/90' : 'h-12 w-12'}
-          variant={isRecording ? 'default' : 'outline'}
-        >
-          {isRecording ? <Square className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
-        </Button>
+      {/* Left: input grows */}
+      <Input
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
+        placeholder={isRecording ? "Grabando..." : "Escribe tu pregunta sobre SAP aquí..."}
+        disabled={isLoading || isRecording}
+        className="flex-1 h-12 bg-background border-2 border-muted focus:border-primary transition-colors"
+        aria-label="Mensaje de chat"
+      />
 
-        <Input
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          placeholder={isRecording ? "Grabando..." : "Escribe tu pregunta sobre SAP aquí..."}
-          disabled={isLoading || isRecording}
-          className="flex-1 h-12 bg-background border-2 border-muted focus:border-primary transition-colors"
-          aria-label="Mensaje de chat"
-        />
-      </div>
-
+      {/* Right: controls */}
       {isRecording ? (
         <div className="flex items-center gap-3">
           <div className="text-sm text-muted-foreground tabular-nums" aria-live="polite">
@@ -128,20 +117,33 @@ export const ChatInput = ({ onSendMessage, onSendAudio, isLoading }: ChatInputPr
             type="button"
             onClick={stopRecording}
             className="h-12 px-4 bg-destructive hover:bg-destructive/90"
+            aria-label="Detener grabación"
           >
             <Square className="h-4 w-4 mr-2" /> Detener
           </Button>
         </div>
       ) : (
-        <Button
-          type="submit"
-          disabled={!message.trim() || isLoading}
-          className="h-12 px-6 bg-primary hover:bg-sap-blue-dark transition-colors shadow-[var(--shadow-soft)]"
-        >
-          <Send className="h-4 w-4" />
-          <span className="ml-2">Preguntar</span>
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            type="button"
+            onClick={startRecording}
+            disabled={isLoading}
+            aria-label={'Grabar nota de voz'}
+            className="h-12 w-12"
+            variant={'outline'}
+          >
+            <Mic className="h-5 w-5" />
+          </Button>
+          <Button 
+            type="submit" 
+            disabled={!message.trim() || isLoading}
+            className="h-12 px-6 bg-primary hover:bg-sap-blue-dark transition-colors shadow-[var(--shadow-soft)]"
+          >
+            <Send className="h-4 w-4" />
+            <span className="ml-2">Preguntar</span>
+          </Button>
+        </div>
       )}
     </form>
   );
-};
+}

@@ -9,7 +9,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useChat } from "@/hooks/useChat";
-import { History, X } from "lucide-react";
+import { History } from "lucide-react";
 
 const Index = () => {
   const { chatId } = useParams();
@@ -20,7 +20,6 @@ const Index = () => {
 
   const handleSendMessage = async (messageText: string) => {
     await sendMessage(messageText, (newChatId) => {
-      // Navigate to the new chat URL if we created a new chat
       if (!chatId && newChatId) {
         navigate(`/chat/${newChatId}`, { replace: true });
       }
@@ -60,10 +59,13 @@ const Index = () => {
 
       {/* Main Content */}
       <div className="flex-1 min-h-0 flex flex-col">
-        <div className="container mx-auto px-4 py-8 max-w-4xl flex-1 min-h-0 flex flex-col">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <div className="flex items-center justify-between mb-4">
+        {/* Top Nav */}
+        <div className="w-full border-b border-border/50 bg-background/70 backdrop-blur supports-[backdrop-filter]:bg-background/40">
+          <div className="container mx-auto px-4 py-3 max-w-5xl flex items-center justify-between">
+            <h1 className="text-xl md:text-2xl font-semibold bg-gradient-to-r from-primary to-sap-blue-dark bg-clip-text text-transparent">
+              Asistente de SAP
+            </h1>
+            <div className="flex items-center gap-2">
               <Button
                 variant="outline"
                 size="sm"
@@ -73,7 +75,6 @@ const Index = () => {
                 <History className="h-4 w-4" />
                 Historial
               </Button>
-              
               {currentChat && (
                 <ShareButton 
                   onShare={shareChat}
@@ -81,20 +82,14 @@ const Index = () => {
                 />
               )}
             </div>
-            
-            <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary to-sap-blue-dark bg-clip-text text-transparent mb-4">
-              Asistente de SAP impulsado por IA
-            </h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Tu compañero inteligente para consultas de SAP. Obtén respuestas instantáneas sobre módulos, 
-              transacciones y mejores prácticas en lenguaje natural.
-            </p>
           </div>
+        </div>
 
+        <div className="container mx-auto px-4 py-4 max-w-5xl flex-1 min-h-0 flex flex-col">
           {/* Chat Container */}
           <Card className="bg-card/50 backdrop-blur-sm border-0 shadow-[var(--shadow-soft)] overflow-hidden flex-1 min-h-0 flex flex-col">
             {/* Chat Area */}
-            <ScrollArea className="flex-1 p-6 bg-gradient-to-b from-card to-card/80">
+            <ScrollArea className="flex-1 p-4 md:p-6 bg-gradient-to-b from-card to-card/80">
               <div className="space-y-4">
                 {messages.map((message) => (
                   <ChatMessage
@@ -109,17 +104,10 @@ const Index = () => {
             </ScrollArea>
 
             {/* Input Area */}
-            <div className="p-6 bg-card border-t border-border/50">
+            <div className="p-3 md:p-4 bg-card border-t border-border/50">
               <ChatInput onSendMessage={handleSendMessage} onSendAudio={handleSendAudio} isLoading={isLoading} />
             </div>
           </Card>
-
-          {/* Footer */}
-          <div className="text-center mt-6">
-            <p className="text-sm text-muted-foreground">
-              Desarrollado con tecnología de IA avanzada para consultas SAP
-            </p>
-          </div>
         </div>
       </div>
     </div>
