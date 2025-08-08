@@ -61,11 +61,8 @@ const Index = () => {
       <div className="flex-1 min-h-0 flex flex-col">
         {/* Top Nav */}
         <div className="w-full border-b border-border/50 bg-background/70 backdrop-blur supports-[backdrop-filter]:bg-background/40">
-          <div className="container mx-auto px-4 py-3 max-w-5xl flex items-center justify-between">
-            <h1 className="text-xl md:text-2xl font-semibold bg-gradient-to-r from-primary to-sap-blue-dark bg-clip-text text-transparent">
-              Asistente de SAP
-            </h1>
-            <div className="flex items-center gap-2">
+          <div className="container mx-auto px-4 py-3 max-w-6xl grid grid-cols-3 items-center">
+            <div className="flex items-center">
               <Button
                 variant="outline"
                 size="sm"
@@ -75,6 +72,13 @@ const Index = () => {
                 <History className="h-4 w-4" />
                 Historial
               </Button>
+            </div>
+            <div className="flex items-center justify-center">
+              <h1 className="text-lg md:text-2xl font-semibold bg-gradient-to-r from-primary to-sap-blue-dark bg-clip-text text-transparent text-center">
+                Tu asistente personal de SAP
+              </h1>
+            </div>
+            <div className="flex items-center justify-end">
               {currentChat && (
                 <ShareButton 
                   onShare={shareChat}
@@ -85,7 +89,7 @@ const Index = () => {
           </div>
         </div>
 
-        <div className="container mx-auto px-4 py-4 max-w-5xl flex-1 min-h-0 flex flex-col">
+        <div className="container mx-auto px-4 py-4 max-w-6xl flex-1 min-h-0 flex flex-col">
           {/* Chat Container */}
           <Card className="bg-card/50 backdrop-blur-sm border-0 shadow-[var(--shadow-soft)] overflow-hidden flex-1 min-h-0 flex flex-col">
             {/* Chat Area */}
