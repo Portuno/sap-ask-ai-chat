@@ -248,6 +248,78 @@ export const useChat = (chatId?: string) => {
     }
   };
 
+  const sendAudioMessage = async (audio: Blob, durationSec: number, onSuccess?: (chatId: string) => void) => {
+    setIsLoading(true);
+    try {
+      let chatIdToUse = currentChat?.id;
+      if (!chatIdToUse) {
+        chatIdToUse = await createChat('Nota de voz');
+        if (!chatIdToUse) {
+          setIsLoading(false);
+          return;
+        }
+      }
+
+      // Save placeholder user message for audio
+      const placeholder = `🎤 Nota de voz (${Math.min(Math.round(durationSec), 120)}s)`;
+      const userMessage = await saveMessage(placeholder, true, chatIdToUse);
+      if (userMessage) {
+        setMessages(prev => [...prev, userMessage]);
+      }
+
+      const hasMabot = Boolean(mabotConfig.baseUrl);
+      if (!hasMabot) {
+        setTimeout(async () => {
+          const botResponse = simulateResponse('nota de voz');
+          const botMessage = await saveMessage(botResponse, false, chatIdToUse!);
+          if (botMessage) setMessages(prev => [...prev, botMessage]);
+          setIsLoading(false);
+          onSuccess?.(chatIdToUse!);
+        }, 800);
+        return;
+      }
+
+      try {
+        await ensureMabotLogin();
+        const existingMabotChatId = getMabotChatIdForChat(chatIdToUse);
+        const updateOut = await mabot.sendWebAudioMessage({
+          audio,
+          mimeType: audio.type,
+          filename: undefined,
+          botUsername: mabotConfig.botUsername ?? null,
+          chatId: existingMabotChatId,
+          platformChatId: chatIdToUse,
+          prefixWithBotName: false,
+          parseToText: true,
+        });
+
+        if (updateOut?.chat_id && updateOut.chat_id !== existingMabotChatId) {
+          setMabotChatIdForChat(chatIdToUse, updateOut.chat_id);
+        }
+
+        const assistantText = extractAssistantText(updateOut) ?? '...';
+        const botMessage = await saveMessage(assistantText, false, chatIdToUse);
+        if (botMessage) setMessages(prev => [...prev, botMessage]);
+      } catch (mabotError) {
+        console.error('MABOT error:', mabotError);
+        const fallback = simulateResponse('nota de voz');
+        const botMessage = await saveMessage(fallback, false, chatIdToUse!);
+        if (botMessage) setMessages(prev => [...prev, botMessage]);
+      }
+
+      setIsLoading(false);
+      onSuccess?.(chatIdToUse!);
+    } catch (error) {
+      console.error('Error sending audio message:', error);
+      setIsLoading(false);
+      toast({
+        title: "Error",
+        description: "No se pudo enviar la nota de voz.",
+        variant: "destructive"
+      });
+    }
+  };
+
   const shareChat = async () => {
     if (!currentChat) return null;
 
@@ -288,6 +360,7 @@ export const useChat = (chatId?: string) => {
     currentChat,
     isLoading,
     sendMessage,
+    sendAudioMessage,
     shareChat,
     loadChat
   };

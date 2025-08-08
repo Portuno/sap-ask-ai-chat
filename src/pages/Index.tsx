@@ -16,11 +16,19 @@ const Index = () => {
   const navigate = useNavigate();
   const [showHistory, setShowHistory] = useState(false);
   
-  const { messages, currentChat, isLoading, sendMessage, shareChat } = useChat(chatId);
+  const { messages, currentChat, isLoading, sendMessage, sendAudioMessage, shareChat } = useChat(chatId);
 
   const handleSendMessage = async (messageText: string) => {
     await sendMessage(messageText, (newChatId) => {
       // Navigate to the new chat URL if we created a new chat
+      if (!chatId && newChatId) {
+        navigate(`/chat/${newChatId}`, { replace: true });
+      }
+    });
+  };
+
+  const handleSendAudio = async (audio: Blob, durationSec: number) => {
+    await sendAudioMessage(audio, durationSec, (newChatId) => {
       if (!chatId && newChatId) {
         navigate(`/chat/${newChatId}`, { replace: true });
       }
@@ -102,7 +110,7 @@ const Index = () => {
 
             {/* Input Area */}
             <div className="p-6 bg-card border-t border-border/50">
-              <ChatInput onSendMessage={handleSendMessage} isLoading={isLoading} />
+              <ChatInput onSendMessage={handleSendMessage} onSendAudio={handleSendAudio} isLoading={isLoading} />
             </div>
           </Card>
 

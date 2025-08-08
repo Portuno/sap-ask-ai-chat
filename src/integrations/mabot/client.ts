@@ -1,4 +1,5 @@
-import { UpdateIn, UpdateOut, Token, TextContent } from "./types";
+import { UpdateIn, UpdateOut, Token, TextContent, } from "./types";
+import type { AudioContent } from "./types";
 
 export type MabotClientOptions = {
   baseUrl: string;
@@ -227,6 +228,63 @@ export class MabotClient {
         {
           role: "user",
           contents: [content],
+        },
+      ],
+      bot_username: params.botUsername ?? null,
+      prefix_with_bot_name: Boolean(params.prefixWithBotName),
+    };
+
+    return this.authorizedFetch<UpdateOut>(`/io/input`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+  };
+
+  private readonly blobToBase64 = (blob: Blob): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const result = reader.result as string;
+        // result is a data URL like data:audio/webm;base64,XXXX -> extract base64 part
+        const base64 = result.includes(",") ? result.split(",")[1] : result;
+        resolve(base64);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  };
+
+  readonly sendWebAudioMessage = async (params: {
+    audio: Blob;
+    mimeType?: string;
+    filename?: string;
+    botUsername?: string | null;
+    chatId?: string | null;
+    platformChatId?: string | null;
+    prefixWithBotName?: boolean;
+    parseToText?: boolean;
+  }): Promise<UpdateOut> => {
+    const base64 = await this.blobToBase64(params.audio);
+    const mime = params.mimeType || params.audio.type || "audio/webm";
+    const name = params.filename || `voice-note.${mime.includes("mp4") ? "mp4" : "webm"}`;
+
+    const audioContent: AudioContent = {
+      type: "audio",
+      value: base64,
+      filename: name,
+      mimetype: mime,
+      parse_to_text: params.parseToText ?? true,
+    };
+
+    const body: UpdateIn = {
+      platform: "web",
+      chat_id: params.chatId ?? null,
+      platform_chat_id: params.platformChatId ?? null,
+      messages: [
+        {
+          role: "user",
+          contents: [audioContent],
         },
       ],
       bot_username: params.botUsername ?? null,
