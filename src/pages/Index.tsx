@@ -36,7 +36,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-sap-blue-light flex">
+    <div className="h-screen overflow-hidden bg-gradient-to-br from-background to-sap-blue-light flex">
       {/* Chat History Sidebar */}
       {showHistory && (
         <div className="fixed inset-0 z-50 lg:relative lg:inset-auto">
@@ -51,8 +51,8 @@ const Index = () => {
       )}
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col">
-        <div className="container mx-auto px-4 py-8 max-w-4xl flex-1 flex flex-col">
+      <div className="flex-1 min-h-0 flex flex-col">
+        <div className="container mx-auto px-4 py-8 max-w-4xl flex-1 min-h-0 flex flex-col">
           {/* Header */}
           <div className="text-center mb-8">
             <div className="flex items-center justify-between mb-4">
@@ -84,7 +84,7 @@ const Index = () => {
           </div>
 
           {/* Chat Container */}
-          <Card className="bg-card/50 backdrop-blur-sm border-0 shadow-[var(--shadow-soft)] overflow-hidden flex-1 flex flex-col">
+          <Card className="bg-card/50 backdrop-blur-sm border-0 shadow-[var(--shadow-soft)] overflow-hidden flex-1 min-h-0 flex flex-col">
             {/* Chat Area */}
             <ScrollArea className="flex-1 p-6 bg-gradient-to-b from-card to-card/80">
               <div className="space-y-4">
