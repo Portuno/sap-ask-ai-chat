@@ -8,26 +8,41 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 250 50% 98%;
+    --foreground: 220 15% 20%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 220 15% 20%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 220 15% 20%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 214 84% 56%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 220 15% 97%;
+    --secondary-foreground: 220 15% 20%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 220 10% 95%;
+    --muted-foreground: 220 10% 45%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 210 100% 96%;
+    --accent-foreground: 214 84% 56%;
+
+    /* SAP Corporate Colors */
+    --sap-blue: 214 84% 56%;
+    --sap-blue-dark: 214 84% 45%;
+    --sap-blue-light: 214 84% 92%;
+    --sap-gray: 220 10% 45%;
+    --sap-gray-light: 220 10% 95%;
+    
+    /* Gradients */
+    --gradient-hero: linear-gradient(135deg, hsl(214 84% 56%), hsl(214 84% 45%));
+    --gradient-chat: linear-gradient(180deg, hsl(0 0% 100%), hsl(220 10% 98%));
+    
+    /* Shadows */
+    --shadow-soft: 0 2px 8px -2px hsl(214 84% 56% / 0.1);
+    --shadow-chat: 0 1px 3px hsl(220 10% 45% / 0.1);
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
