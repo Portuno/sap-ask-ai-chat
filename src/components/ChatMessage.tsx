@@ -11,7 +11,38 @@ interface ChatMessageProps {
   timestamp: Date;
 }
 
+const formatMabotText = (raw: string): string => {
+  if (!raw) return "";
+  let text = raw.replace(/\r\n/g, "\n");
+
+  // Normalize horizontal rules and ensure spacing
+  text = text.replace(/\s*---\s*/g, "\n\n---\n\n");
+
+  // Ensure headings start on a new paragraph
+  text = text.replace(/###\s/g, "\n\n### ");
+  text = text.replace(/##\s/g, "\n\n## ");
+
+  // Force numbered lists to begin on a new line when embedded inline
+  text = text.replace(/\s(\d+)\.\s/g, "\n$1. ");
+
+  // Convert inline bullets after punctuation into real list items
+  text = text.replace(/([:\.;])\s-\s/g, "$1\n- ");
+
+  // Collapse excessive newlines to max 2
+  text = text.replace(/\n{3,}/g, "\n\n");
+
+  // Trim trailing spaces per line
+  text = text
+    .split("\n")
+    .map((l) => l.replace(/\s+$/g, ""))
+    .join("\n");
+
+  return text.trim();
+};
+
 export const ChatMessage = ({ message, isUser, timestamp }: ChatMessageProps) => {
+  const formatted = isUser ? message : formatMabotText(message);
+
   return (
     <div className={`flex gap-3 mb-4 ${isUser ? "justify-end" : "justify-start"}`}>
       {!isUser && (
@@ -41,7 +72,7 @@ export const ChatMessage = ({ message, isUser, timestamp }: ChatMessageProps) =>
                   const isInline = inline ?? false;
                   if (isInline) {
                     return (
-                      <code className={"rounded bg-muted/40 " + (className || "")}{...props}>
+                      <code className={"rounded bg-muted/40 " + (className || "")} {...props}>
                         {children}
                       </code>
                     );
@@ -57,7 +88,7 @@ export const ChatMessage = ({ message, isUser, timestamp }: ChatMessageProps) =>
                 ),
               }}
             >
-              {message}
+              {formatted}
             </ReactMarkdown>
           </div>
         </Card>
