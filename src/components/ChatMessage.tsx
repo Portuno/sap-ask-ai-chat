@@ -54,7 +54,7 @@ export const ChatMessage = ({ message, isUser, timestamp }: ChatMessageProps) =>
   const formatted = isUser ? message : formatMabotText(message);
 
   return (
-    <div className={`flex gap-3 mb-3 ${isUser ? "justify-end" : "justify-start"}`}>
+    <div className={`flex gap-2 mb-2 ${isUser ? "justify-end" : "justify-start"}`}>
       {!isUser && (
         <Avatar className="h-8 w-8 bg-primary">
           <AvatarFallback>
@@ -64,12 +64,12 @@ export const ChatMessage = ({ message, isUser, timestamp }: ChatMessageProps) =>
       )}
       
       <div className={`max-w-[80%] ${isUser ? "order-first" : ""}`}>
-        <Card className={`p-3 ${
+        <Card className={`p-2.5 ${
           isUser 
             ? "bg-primary text-primary-foreground ml-auto" 
             : "bg-card text-card-foreground shadow-[var(--shadow-chat)]"
         }`}>
-          <div className={`${isUser ? "prose prose-base prose-invert" : "prose prose-base"} max-w-none leading-snug prose-p:my-0.5 prose-pre:my-2 prose-code:px-1 prose-code:py-0.5 whitespace-pre-wrap prose-ul:my-1.5 prose-ol:my-1.5 prose-li:my-0.5`}>
+          <div className={`${isUser ? "prose prose-base prose-invert" : "prose prose-base"} max-w-none leading-tight prose-headings:my-2 prose-h3:my-1 prose-p:my-0 prose-pre:my-1.5 prose-code:px-1 prose-code:py-0.5 whitespace-pre-wrap prose-ul:my-1 prose-ol:my-1 prose-li:my-0`}>
             <ReactMarkdown
               remarkPlugins={[remarkGfm, remarkBreaks]}
               skipHtml
